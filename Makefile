@@ -2,11 +2,12 @@
 # If you'd like your target to show up use the following:
 #
 # my_target: ##@category_name sample description for my_target
-service := "aws-aurora"
+service := "aws-aurora" # This is set as PROJECT from the Makefile outward; i.e. ~> export PROJECT=${service}
 service_title := "AWS Aurora Database Setup"
 service_author := "Philip DeLorenzo"
 env := "dev"
 repo := "${service}-setup"
+state_bucket := "${service}-terraform-state"
 tfvars_file := "$(shell pwd)"/iac/aws/terraform/environments/dev/env.auto.tfvars
 AWS_PROFILE := $(shell cat .aws_profile)
 
@@ -67,7 +68,9 @@ bootstrap: ##@terraform Bootstraps the development environment
 	$(info ********** Bootstrapping Development Environment (Creating AWS s3 Backend) **********)
 	@$(MAKE) prereqs
 	@doppler run --token ${DOPPLER_TOKEN} --command "cd iac/aws/bootstrap || exit 1 && terraform init"
-	@doppler run --token ${DOPPLER_TOKEN} --command "export DOPPLER_TOKEN=${DOPPLER_TOKEN} && bash iac/scripts/bootstrap.sh ${service}"
+	@export AWS_PROFILE=${AWS_PROFILE} && \
+	doppler run --token ${DOPPLER_TOKEN} \
+	--command "export DOPPLER_TOKEN=${DOPPLER_TOKEN} && bash iac/scripts/bootstrap.sh ${service}"
 	@echo "[INFO] - Bootstrap Complete!"
 
 init: ##@terraform Installs needed providers and initializes the terraform files
@@ -78,7 +81,7 @@ init: ##@terraform Installs needed providers and initializes the terraform files
 	-backend-config='profile=${AWS_PROFILE}' \
 	-backend-config='bucket=${service}-terraform-state' \
 	-backend-config='key=${service}/${env}/terraform.tfstate' \
-	-backend-config='region=${REGION}' \
+	-backend-config='region=${AWS_REGION}' \
 	-var-file=${tfvars_file}"
 
 refresh: ##@terraform Refreshes the terraform state file
