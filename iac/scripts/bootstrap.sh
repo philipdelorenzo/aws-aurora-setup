@@ -7,6 +7,8 @@ set -eou pipefail
 service="${1}"
 TF_STATE_FILE="${service}-terraform-state" # Found, let's name it
 
+echo "[INFO] - Checking for the existence of the S3 bucket: ${TF_STATE_FILE}"
+
 BASEDIR=$(dirname "$0")
 REPO=$(dirname "$0")/../..
 

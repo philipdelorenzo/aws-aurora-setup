@@ -1,17 +1,17 @@
 # variables.tf
 variable "vpc_id" {
-  description = "The ID of the VPC where the Aurora cluster will be deployed."
+  description = "The VPC ID where the Aurora cluster will be deployed."
   type        = string
 }
 
-variable "private_subnet_ids" {
-  description = "A list of private subnet IDs for the DB subnet group."
+variable "environment" {
+  description = "Deployment environment (e.g., dev, prod)"
+  type        = string
+}
+
+variable "subnets" {
+  description = "The subnets for the Aurora cluster."
   type        = list(string)
-}
-
-variable "db_security_group_id" {
-  description = "The ID of the Security Group to attach to the Aurora cluster."
-  type        = string
 }
 
 variable "aurora_family_type" {
@@ -30,7 +30,6 @@ variable "DB_USERNAME" {
   description = "Master username for the database"
   type        = string
 }
-
 variable "DB_PASSWORD" {
   # This should be provided when the module is used, as TF_VAR_DB_PASSWORD - See Doppler
   description = "Password for the database user"
@@ -43,7 +42,14 @@ variable "instance_class" {
   type        = string
 }
 
-variable "instance_count" {
-  description = "Number of Aurora instances"
-  type        = number
+variable "engine_version" {
+  description = "PostgreSQL version for Aurora"
+  type        = string
+  default     = "15.4"
+}
+
+variable "common_tags" {
+  description = "Tags to apply to resources"
+  type        = map(string)
+  default     = {}
 }

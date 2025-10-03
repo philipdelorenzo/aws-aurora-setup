@@ -2,7 +2,8 @@
 # If you'd like your target to show up use the following:
 #
 # my_target: ##@category_name sample description for my_target
-service := "aws-aurora" # This is set as PROJECT from the Makefile outward; i.e. ~> export PROJECT=${service}
+# This is set as PROJECT from the Makefile outward; i.e. ~> export PROJECT=${service}
+service := "aws-aurora"
 service_title := "AWS Aurora Database Setup"
 service_author := "Philip DeLorenzo"
 env := "dev"
@@ -14,7 +15,7 @@ AWS_PROFILE := $(shell cat .aws_profile)
 # This is a database - 10.10.[50-55].0/24
 NETWORK_ID := 10.10.50
 CIDR_NOTATION := 24
-VPC_CIDR_BLOCK := "${NETWORK_ID}.0/${CIDR_NOTATION}"
+SUBNET := "${NETWORK_ID}.0/${CIDR_NOTATION}"
 default: help
 
 # We need to have a doppler token set to proceed, this is by design so that bad actors cannot access the secrets, or environments.
@@ -45,7 +46,7 @@ prereqs:
 	@export AWS_PROFILE=${AWS_PROFILE} && \
 	export PROJECT=${service} && \
 	export NETWORK_ID=${NETWORK_ID} && \
-	export VPC_CIDR_BLOCK=${VPC_CIDR_BLOCK} && \
+	export SUBNET=${SUBNET} && \
 	export ENVIRONMENT=${env} && \
 	bash -l "scripts/prereqs.sh"
 
@@ -76,11 +77,15 @@ bootstrap: ##@terraform Bootstraps the development environment
 init: ##@terraform Installs needed providers and initializes the terraform files
 	$(info ********** Initializing the Terraform Environment/Providers **********)
 	@$(MAKE) prereqs
-	@doppler run --token ${DOPPLER_TOKEN} --command "cd iac/aws/terraform/environments/dev || exit 1 && \
+	@doppler run --token ${DOPPLER_TOKEN} \
+	--command "export TV_VARS_DB_NAME=${DB_NAME} && \
+	export TV_VARS_DB_USERNAME=${DB_USERNAME} && \
+	export TV_VARS_DB_PASSWORD=${DB_PASSWORD} && \
+	cd iac/aws/terraform/environments/dev || exit 1 && \
 	terraform init \
 	-backend-config='profile=${AWS_PROFILE}' \
 	-backend-config='bucket=${service}-terraform-state' \
-	-backend-config='key=${service}/${env}/terraform.tfstate' \
+	-backend-config='key=${service}/terraform.tfstate' \
 	-backend-config='region=${AWS_REGION}' \
 	-var-file=${tfvars_file}"
 

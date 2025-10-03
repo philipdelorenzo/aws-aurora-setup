@@ -9,6 +9,13 @@ A small, basic AWS Aurora Database _(relational)_ configuration to get started.
 
 #### _This presumes the Doppler project with the same name as the repo, and configs exist._
 
+**IMPORTANT!**: You will need to have the following environment variables set:
+
+- `AWS_ACCESS_KEY`
+- `AWS_SECRET_ACCESS_KEY`
+
+If you are using Doppler _(recommended for these projects)_, you will need to have these 
+
 We need to configure our AWS CLI - `make configure`
 
 There are some prerequisites that will allow the developer to interact with this repo much easier, with

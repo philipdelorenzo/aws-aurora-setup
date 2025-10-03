@@ -1,5 +1,8 @@
 # outputs.tf
-
+output "db_cluster_id" {
+  description = "The ID of the Aurora DB cluster."
+  value       = module.aurora.cluster_id
+}
 output "db_cluster_endpoint" {
   description = "The DNS endpoint for the Aurora cluster (writer endpoint)."
   value       = module.aurora.cluster_endpoint
