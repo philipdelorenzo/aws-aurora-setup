@@ -6,5 +6,5 @@ output "aurora_subnet_ids" {
 output "vpc_id" {
   description = "The ID of the VPC where the Aurora cluster is deployed."
   value       = data.aws_vpc.existing_vpc.id
-  
+
 }

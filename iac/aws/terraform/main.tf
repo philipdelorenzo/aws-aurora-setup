@@ -9,9 +9,10 @@ module "network" {
 }
 
 module "aurora" {
-  source      = "./modules/aurora"
-  vpc_id       = module.network.vpc_id
-  subnets      = module.network.aurora_subnet_ids
+  source = "./modules/aurora"
+  # Prefer an explicit vpc_id var when provided (useful for CI or tests). Otherwise use the network module's output.
+  vpc_id      = var.vpc_id != "" ? var.vpc_id : module.network.vpc_id
+  subnets     = module.network.aurora_subnet_ids
   environment = var.environment
   # Database Config
   DB_NAME        = var.DB_NAME
