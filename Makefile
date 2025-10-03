@@ -89,6 +89,21 @@ init: ##@terraform Installs needed providers and initializes the terraform files
 	-backend-config='region=${AWS_REGION}' \
 	-var-file=${tfvars_file}"
 
+reconfig: ##@terraform Installs needed providers and initializes the terraform files
+	$(info ********** Initializing (reconfigure) the Terraform Environment/Providers **********)
+	@$(MAKE) prereqs
+	@doppler run --token ${DOPPLER_TOKEN} \
+	--command "export TV_VARS_DB_NAME=${DB_NAME} && \
+	export TV_VARS_DB_USERNAME=${DB_USERNAME} && \
+	export TV_VARS_DB_PASSWORD=${DB_PASSWORD} && \
+	cd iac/aws/terraform/environments/dev || exit 1 && \
+	terraform init --reconfigure \
+	-backend-config='profile=${AWS_PROFILE}' \
+	-backend-config='bucket=${service}-terraform-state' \
+	-backend-config='key=${service}/terraform.tfstate' \
+	-backend-config='region=${AWS_REGION}' \
+	-var-file=${tfvars_file}"
+
 refresh: ##@terraform Refreshes the terraform state file
 	$(info ********** Refreshing the Terraform State File **********)
 	@doppler run --token ${DOPPLER_TOKEN} --command "cd iac/aws/terraform/environments/dev || exit 1 && terraform refresh -var='profile=${AWS_PROFILE}'"
